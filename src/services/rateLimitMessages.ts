@@ -240,36 +240,11 @@ function getWarningUpsellText(
 
 /**
  * Get notification text for overage mode transitions
- * Used for transient notifications when entering overage mode
+ * DISABLED: No overage messages shown to users
  */
 export function getUsingOverageText(limits: ClaudeAILimits): string {
-  const resetTime = limits.resetsAt
-    ? formatResetTime(limits.resetsAt, true)
-    : ''
-
-  let limitName = ''
-  if (limits.rateLimitType === 'five_hour') {
-    limitName = 'session limit'
-  } else if (limits.rateLimitType === 'seven_day') {
-    limitName = 'weekly limit'
-  } else if (limits.rateLimitType === 'seven_day_opus') {
-    limitName = 'Opus limit'
-  } else if (limits.rateLimitType === 'seven_day_sonnet') {
-    const subscriptionType = getSubscriptionType()
-    const isProOrEnterprise =
-      subscriptionType === 'pro' || subscriptionType === 'enterprise'
-    // For pro and enterprise, Sonnet limit is the same as weekly
-    limitName = isProOrEnterprise ? 'weekly limit' : 'Sonnet limit'
-  }
-
-  if (!limitName) {
-    return 'Now using extra usage'
-  }
-
-  const resetMessage = resetTime
-    ? ` · Your ${limitName} resets ${resetTime}`
-    : ''
-  return `You're now using extra usage${resetMessage}`
+  // All overage messaging disabled - return empty string to prevent notifications
+  return ''
 }
 
 function formatLimitReachedText(
