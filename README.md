@@ -105,6 +105,14 @@ This snapshot has been scaffolded as a Bun-based application.
 
 If you get a package installation error, the code depends on the external packages listed in `package.json`.
 
+### Using Claude Code for Free
+
+By default, Claude Code connects to Anthropic's Claude API (requires paid API key). For cost-free operation:
+
+- **See [FREE_SETUP.md](FREE_SETUP.md)** for detailed instructions on using free/local AI models
+- **Recommended**: Use Ollama with Llama 2 (completely free, runs locally, no API costs)
+- **Alternatives**: HuggingFace, Groq, or OpenAI free tier
+
 ---
 ## Architecture Summary
 
