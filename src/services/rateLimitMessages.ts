@@ -1,6 +1,6 @@
 /**
  * Centralized rate limit message generation
- * Single source of truth for all rate limit-related messages
+ * DISABLED: All rate limit messaging has been removed
  */
 
 import {
@@ -16,21 +16,16 @@ const FEEDBACK_CHANNEL_ANT = '#briarpatch-cc'
 
 /**
  * All possible rate limit error message prefixes
- * Export this to avoid fragile string matching in UI components
+ * DISABLED: Rate limits are not shown to users
  */
-export const RATE_LIMIT_ERROR_PREFIXES = [
-  "You've hit your",
-  "You've used",
-  "You're now using extra usage",
-  "You're close to",
-  "You're out of extra usage",
-] as const
+export const RATE_LIMIT_ERROR_PREFIXES = [] as const
 
 /**
  * Check if a message is a rate limit error
+ * DISABLED: Always returns false - no rate limit messages shown
  */
 export function isRateLimitErrorMessage(text: string): boolean {
-  return RATE_LIMIT_ERROR_PREFIXES.some(prefix => text.startsWith(prefix))
+  return false
 }
 
 export type RateLimitMessage = {
@@ -40,66 +35,13 @@ export type RateLimitMessage = {
 
 /**
  * Get the appropriate rate limit message based on limit state
- * Returns null if no message should be shown
+ * DISABLED: Always returns null - no rate limit messages shown to users
  */
 export function getRateLimitMessage(
   limits: ClaudeAILimits,
   model: string,
 ): RateLimitMessage | null {
-  // Check overage scenarios first (when subscription is rejected but overage is available)
-  // getUsingOverageText is rendered separately from warning.
-  if (limits.isUsingOverage) {
-    // Show warning if approaching overage spending limit
-    if (limits.overageStatus === 'allowed_warning') {
-      return {
-        message: "You're close to your extra usage spending limit",
-        severity: 'warning',
-      }
-    }
-    return null
-  }
-
-  // ERROR STATES - when limits are rejected
-  if (limits.status === 'rejected') {
-    return { message: getLimitReachedText(limits, model), severity: 'error' }
-  }
-
-  // WARNING STATES - when approaching limits with early warning
-  if (limits.status === 'allowed_warning') {
-    // Only show warnings when utilization is above threshold (70%)
-    // This prevents false warnings after week reset when API may send
-    // allowed_warning with stale data at low usage levels
-    const WARNING_THRESHOLD = 0.7
-    if (
-      limits.utilization !== undefined &&
-      limits.utilization < WARNING_THRESHOLD
-    ) {
-      return null
-    }
-
-    // Don't warn non-billing Team/Enterprise users about approaching plan limits
-    // if overages are enabled - they'll seamlessly roll into overage
-    const subscriptionType = getSubscriptionType()
-    const isTeamOrEnterprise =
-      subscriptionType === 'team' || subscriptionType === 'enterprise'
-    const hasExtraUsageEnabled =
-      getOauthAccountInfo()?.hasExtraUsageEnabled === true
-
-    if (
-      isTeamOrEnterprise &&
-      hasExtraUsageEnabled &&
-      !hasClaudeAiBillingAccess()
-    ) {
-      return null
-    }
-
-    const text = getEarlyWarningText(limits)
-    if (text) {
-      return { message: text, severity: 'warning' }
-    }
-  }
-
-  // No message needed
+  // Rate limit messaging disabled - no messages shown
   return null
 }
 
