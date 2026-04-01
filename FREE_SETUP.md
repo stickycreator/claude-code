@@ -49,18 +49,18 @@ bun run start
   export HUGGINGFACE_API_KEY="your_token_here"
   ```
 
-### Groq (Unlimited Free for Registered Users)
+### Groq (Free for Registered Users)
 - Sign up at https://console.groq.com
 - Get free API key (no credit card)
-- Very fast inference, no strict rate limits for casual use
+- Very fast inference
 - Set:
   ```bash
   export GROQ_API_KEY="your_key_here"
   ```
 
-## Option 3: OpenAI Free Trial (Limited - 3 Months)
+## Option 3: OpenAI Free
 - Sign up at https://platform.openai.com
-- Get $5-$18 free trial credits (expires in 3 months)
+- Get free credits to start
 - Set:
   ```bash
   export ANTHROPIC_API_KEY="sk-YOUR_OPENAI_KEY"
