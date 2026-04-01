@@ -83,116 +83,13 @@ export function getRateLimitWarning(
 }
 
 function getLimitReachedText(limits: ClaudeAILimits, model: string): string {
-  const resetsAt = limits.resetsAt
-  const resetTime = resetsAt ? formatResetTime(resetsAt, true) : undefined
-  const overageResetTime = limits.overageResetsAt
-    ? formatResetTime(limits.overageResetsAt, true)
-    : undefined
-  const resetMessage = resetTime ? ` · resets ${resetTime}` : ''
-
-  // if BOTH subscription (checked before this method) and overage are exhausted
-  if (limits.overageStatus === 'rejected') {
-    // Show the earliest reset time to indicate when user can resume
-    let overageResetMessage = ''
-    if (resetsAt && limits.overageResetsAt) {
-      // Both timestamps present - use the earlier one
-      if (resetsAt < limits.overageResetsAt) {
-        overageResetMessage = ` · resets ${resetTime}`
-      } else {
-        overageResetMessage = ` · resets ${overageResetTime}`
-      }
-    } else if (resetTime) {
-      overageResetMessage = ` · resets ${resetTime}`
-    } else if (overageResetTime) {
-      overageResetMessage = ` · resets ${overageResetTime}`
-    }
-
-    if (limits.overageDisabledReason === 'out_of_credits') {
-      return `You're out of extra usage${overageResetMessage}`
-    }
-
-    return formatLimitReachedText('limit', overageResetMessage, model)
-  }
-
-  if (limits.rateLimitType === 'seven_day_sonnet') {
-    const subscriptionType = getSubscriptionType()
-    const isProOrEnterprise =
-      subscriptionType === 'pro' || subscriptionType === 'enterprise'
-    // For pro and enterprise, Sonnet limit is the same as weekly
-    const limit = isProOrEnterprise ? 'weekly limit' : 'Sonnet limit'
-    return formatLimitReachedText(limit, resetMessage, model)
-  }
-
-  if (limits.rateLimitType === 'seven_day_opus') {
-    return formatLimitReachedText('Opus limit', resetMessage, model)
-  }
-
-  if (limits.rateLimitType === 'seven_day') {
-    return formatLimitReachedText('weekly limit', resetMessage, model)
-  }
-
-  if (limits.rateLimitType === 'five_hour') {
-    return formatLimitReachedText('session limit', resetMessage, model)
-  }
-
-  return formatLimitReachedText('usage limit', resetMessage, model)
+  // Disabled - no limit messages shown to users
+  return ''
 }
 
 function getEarlyWarningText(limits: ClaudeAILimits): string | null {
-  let limitName: string | null = null
-  switch (limits.rateLimitType) {
-    case 'seven_day':
-      limitName = 'weekly limit'
-      break
-    case 'five_hour':
-      limitName = 'session limit'
-      break
-    case 'seven_day_opus':
-      limitName = 'Opus limit'
-      break
-    case 'seven_day_sonnet':
-      limitName = 'Sonnet limit'
-      break
-    case 'overage':
-      limitName = 'extra usage'
-      break
-    case undefined:
-      return null
-  }
-
-  // utilization and resetsAt should be defined since early warning is calculated with them
-  const used = limits.utilization
-    ? Math.floor(limits.utilization * 100)
-    : undefined
-  const resetTime = limits.resetsAt
-    ? formatResetTime(limits.resetsAt, true)
-    : undefined
-
-  // Get upsell command based on subscription type and limit type
-  const upsell = getWarningUpsellText(limits.rateLimitType)
-
-  if (used && resetTime) {
-    const base = `You've used ${used}% of your ${limitName} · resets ${resetTime}`
-    return upsell ? `${base} · ${upsell}` : base
-  }
-
-  if (used) {
-    const base = `You've used ${used}% of your ${limitName}`
-    return upsell ? `${base} · ${upsell}` : base
-  }
-
-  if (limits.rateLimitType === 'overage') {
-    // For the "Approaching <x>" verbiage, "extra usage limit" makes more sense than "extra usage"
-    limitName += ' limit'
-  }
-
-  if (resetTime) {
-    const base = `Approaching ${limitName} · resets ${resetTime}`
-    return upsell ? `${base} · ${upsell}` : base
-  }
-
-  const base = `Approaching ${limitName}`
-  return upsell ? `${base} · ${upsell}` : base
+  // Disabled - no warning messages shown to users
+  return null
 }
 
 /**
@@ -252,10 +149,6 @@ function formatLimitReachedText(
   resetMessage: string,
   _model: string,
 ): string {
-  // Enhanced messaging for Ant users
-  if (process.env.USER_TYPE === 'ant') {
-    return `You've hit your ${limit}${resetMessage}. If you have feedback about this limit, post in ${FEEDBACK_CHANNEL_ANT}. You can reset your limits with /reset-limits`
-  }
-
-  return `You've hit your ${limit}${resetMessage}`
+  // All limit reached messages disabled - no messages shown to users
+  return ''
 }
