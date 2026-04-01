@@ -107,11 +107,11 @@ If you get a package installation error, the code depends on the external packag
 
 ### Using Claude Code for Free
 
-By default, Claude Code connects to Anthropic's Claude API (requires paid API key). For cost-free operation:
+By default, Claude Code connects to Anthropic's Claude API (requires paid API key). For completely free operation with **no rate limits**:
 
 - **See [FREE_SETUP.md](FREE_SETUP.md)** for detailed instructions on using free/local AI models
-- **Recommended**: Use Ollama with Llama 2 (completely free, runs locally, no API costs)
-- **Alternatives**: HuggingFace, Groq, or OpenAI free tier
+- **Recommended**: Use Ollama with Llama 2 (completely free, runs locally, no API costs, **no rate limits**)
+- **Alternatives**: HuggingFace, Groq, or OpenAI free options (also without rate limits for intended use)
 
 ---
 ## Architecture Summary
