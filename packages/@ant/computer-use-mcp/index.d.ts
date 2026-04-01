@@ -1,0 +1,10 @@
+export const DEFAULT_GRANT_FLAGS: Readonly<Record<string, boolean>>;
+export const API_RESIZE_PARAMS: unknown;
+export function targetImageSize(width: number, height: number): [number, number];
+export function buildComputerUseTools(...args: unknown[]): unknown[];
+export function bindSessionContext(...args: unknown[]): unknown;
+export type ComputerUseSessionContext = Record<string, unknown>;
+export type CuCallToolResult = unknown;
+export type CuPermissionRequest = unknown;
+export type CuPermissionResponse = unknown;
+export type ScreenshotDims = unknown;

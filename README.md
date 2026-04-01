@@ -95,7 +95,17 @@ src/
 ```
 
 ---
+## Run the app locally
 
+This snapshot has been scaffolded as a Bun-based application.
+
+1. Install Bun from https://bun.sh
+2. Run `bun install`
+3. Run `bun run start`
+
+If you get a package installation error, the code depends on the external packages listed in `package.json`.
+
+---
 ## Architecture Summary
 
 ### 1. Tool System (`src/tools/`)

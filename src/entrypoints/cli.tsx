@@ -12,7 +12,17 @@ if (process.env.CLAUDE_CODE_REMOTE === 'true') {
   // eslint-disable-next-line custom-rules/no-top-level-side-effects, custom-rules/no-process-env-top-level
   process.env.NODE_OPTIONS = existing ? `${existing} --max-old-space-size=8192` : '--max-old-space-size=8192';
 }
-
+// Runtime fallback for MACRO values that are normally inlined at build time.
+// This is required for running the source snapshot directly with Bun.
+;(globalThis as any).MACRO ||= {
+  VERSION: '0.1.0',
+  BUILD_TIME: new Date().toISOString(),
+  PACKAGE_URL: '@anthropic-ai/claude-code',
+  NATIVE_PACKAGE_URL: '@anthropic-ai/claude-code',
+  FEEDBACK_CHANNEL: 'https://www.anthropic.com/support',
+  ISSUES_EXPLAINER: 'open a GitHub issue for Claude Code',
+  VERSION_CHANGELOG: ''
+};
 // Harness-science L0 ablation baseline. Inlined here (not init.ts) because
 // BashTool/AgentTool/PowerShellTool capture DISABLE_BACKGROUND_TASKS into
 // module-level consts at import time — init() runs too late. feature() gate
