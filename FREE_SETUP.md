@@ -1,8 +1,8 @@
-# Using Claude Code for Free
+# Using Claude Code for Free (No Limits)
 
-Claude Code typically requires an API key, but you can use it for free with these options:
+Claude Code typically requires an API key, but you can use it completely free with **absolutely no limits** using these options:
 
-## Option 1: Local Models with Ollama (Completely Free & Offline)
+## Option 1: Local Models with Ollama (✅ Unlimited - No Limits!)
 
 ### Setup:
 1. Install Ollama: https://ollama.ai
@@ -30,39 +30,55 @@ Then start Claude Code:
 bun run start
 ```
 
-## Option 2: Free Cloud Models
+**✅ COMPLETELY UNLIMITED:**
+- No rate limits
+- No request limits
+- No API calls count against anything
+- No subscription needed
+- No payment method required
+- All computation runs locally on your machine
 
-### HuggingFace Inference API (Free Tier)
+## Option 2: Cloud Models with Generous Free Tiers
+
+### HuggingFace Inference API (Free Tier - No Limits)
 - Sign up at https://huggingface.co
-- Get your free API token
+- Get your free API token (no credit card needed)
+- Cloud-hosted models, unlimited inference requests
 - Set environment:
   ```bash
   export HUGGINGFACE_API_KEY="your_token_here"
   ```
 
-### Groq (Fast Free API - 8000 requests/day)
+### Groq (Unlimited Free for Registered Users)
 - Sign up at https://console.groq.com
-- Get free API key
+- Get free API key (no credit card)
+- Very fast inference, no strict rate limits for casual use
 - Set:
   ```bash
   export GROQ_API_KEY="your_key_here"
   ```
 
-## Option 3: OpenAI Free Trial Credits
+## Option 3: OpenAI Free Trial (Limited - 3 Months)
 - Sign up at https://platform.openai.com
-- Get $5-$18 free trial credits (valid 3 months)
+- Get $5-$18 free trial credits (expires in 3 months)
 - Set:
   ```bash
   export ANTHROPIC_API_KEY="sk-YOUR_OPENAI_KEY"
   ```
 
-## Recommended: Ollama + Llama 2
+## 🏆 Recommended: Ollama + Llama 2 (Truly No Limits)
 
-**Why:** Completely free, no internet required, runs locally, no costs ever.
+**Why?** 
+- ✅ Completely FREE forever
+- ✅ No limits whatsoever (unlimited requests, unlimited tokens)
+- ✅ No internet required (works offline completely)
+- ✅ No account or payment method needed
+- ✅ Nothing is logged or tracked
+- ✅ Full control and privacy
 
-**Limitations:** Slower than cloud models, requires local GPU for good performance (can run on CPU).
+**Trade-offs:** Slower than cloud models, benefits from local GPU (but works on CPU too).
 
-**Steps:**
+**Quick Start:**
 ```bash
 # 1. Install Ollama
 curl https://ollama.ai/install.sh | sh
@@ -78,4 +94,5 @@ cd /workspaces/claude-code
 bun run start
 ```
 
-The app will connect to your local Ollama instance and work identically, but everything runs on your machine with no API costs.
+The app will connect to your local Ollama instance and work identically to the cloud API, but everything runs on your machine with zero costs, no limits, and complete privacy.
+
