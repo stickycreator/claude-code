@@ -32,61 +32,34 @@ export type ModelCosts = {
   webSearchRequests: number
 }
 
-// Standard pricing tier for Sonnet models: $3 input / $15 output per Mtok
-export const COST_TIER_3_15 = {
-  inputTokens: 3,
-  outputTokens: 15,
-  promptCacheWriteTokens: 3.75,
-  promptCacheReadTokens: 0.3,
-  webSearchRequests: 0.01,
+// Free pricing for all models
+export const COST_FREE = {
+  inputTokens: 0,
+  outputTokens: 0,
+  promptCacheWriteTokens: 0,
+  promptCacheReadTokens: 0,
+  webSearchRequests: 0,
 } as const satisfies ModelCosts
 
-// Pricing tier for Opus 4/4.1: $15 input / $75 output per Mtok
-export const COST_TIER_15_75 = {
-  inputTokens: 15,
-  outputTokens: 75,
-  promptCacheWriteTokens: 18.75,
-  promptCacheReadTokens: 1.5,
-  webSearchRequests: 0.01,
-} as const satisfies ModelCosts
+// Standard pricing tier for Sonnet models: free
+export const COST_TIER_3_15 = COST_FREE
 
-// Pricing tier for Opus 4.5: $5 input / $25 output per Mtok
-export const COST_TIER_5_25 = {
-  inputTokens: 5,
-  outputTokens: 25,
-  promptCacheWriteTokens: 6.25,
-  promptCacheReadTokens: 0.5,
-  webSearchRequests: 0.01,
-} as const satisfies ModelCosts
+// Pricing tier for Opus 4/4.1: free
+export const COST_TIER_15_75 = COST_FREE
 
-// Fast mode pricing for Opus 4.6: $30 input / $150 output per Mtok
-export const COST_TIER_30_150 = {
-  inputTokens: 30,
-  outputTokens: 150,
-  promptCacheWriteTokens: 37.5,
-  promptCacheReadTokens: 3,
-  webSearchRequests: 0.01,
-} as const satisfies ModelCosts
+// Pricing tier for Opus 4.5: free
+export const COST_TIER_5_25 = COST_FREE
 
-// Pricing for Haiku 3.5: $0.80 input / $4 output per Mtok
-export const COST_HAIKU_35 = {
-  inputTokens: 0.8,
-  outputTokens: 4,
-  promptCacheWriteTokens: 1,
-  promptCacheReadTokens: 0.08,
-  webSearchRequests: 0.01,
-} as const satisfies ModelCosts
+// Fast mode pricing for Opus 4.6: free
+export const COST_TIER_30_150 = COST_FREE
 
-// Pricing for Haiku 4.5: $1 input / $5 output per Mtok
-export const COST_HAIKU_45 = {
-  inputTokens: 1,
-  outputTokens: 5,
-  promptCacheWriteTokens: 1.25,
-  promptCacheReadTokens: 0.1,
-  webSearchRequests: 0.01,
-} as const satisfies ModelCosts
+// Pricing for Haiku 3.5: free
+export const COST_HAIKU_35 = COST_FREE
 
-const DEFAULT_UNKNOWN_MODEL_COST = COST_TIER_5_25
+// Pricing for Haiku 4.5: free
+export const COST_HAIKU_45 = COST_FREE
+
+const DEFAULT_UNKNOWN_MODEL_COST = COST_FREE
 
 /**
  * Get the cost tier for Opus 4.6 based on fast mode.
@@ -99,8 +72,7 @@ export function getOpus46CostTier(fastMode: boolean): ModelCosts {
 }
 
 // @[MODEL LAUNCH]: Add a pricing entry for the new model below.
-// Costs from https://platform.claude.com/docs/en/about-claude/pricing
-// Web search cost: $10 per 1000 requests = $0.01 per request
+// Model costs are currently overridden to free for this build.
 export const MODEL_COSTS: Record<ModelShortName, ModelCosts> = {
   [firstPartyNameToCanonical(CLAUDE_3_5_HAIKU_CONFIG.firstParty)]:
     COST_HAIKU_35,
@@ -212,9 +184,18 @@ function formatPrice(price: number): string {
 
 /**
  * Format model costs as a pricing string for display
- * e.g., "$3/$15 per Mtok"
+ * e.g., "$3/$15 per Mtok" or "Free" when all costs are zero.
  */
 export function formatModelPricing(costs: ModelCosts): string {
+  if (
+    costs.inputTokens === 0 &&
+    costs.outputTokens === 0 &&
+    costs.promptCacheWriteTokens === 0 &&
+    costs.promptCacheReadTokens === 0 &&
+    costs.webSearchRequests === 0
+  ) {
+    return 'Free'
+  }
   return `${formatPrice(costs.inputTokens)}/${formatPrice(costs.outputTokens)} per Mtok`
 }
 
