@@ -273,38 +273,11 @@ type Props = {
    *  Measured Mar 2026: 538-msg session, 20 slices → −55% plateau RSS. */
   renderRange?: readonly [start: number, end: number];
 };
-const MAX_MESSAGES_TO_SHOW_IN_TRANSCRIPT_MODE = 30;
+const MAX_MESSAGES_TO_SHOW_IN_TRANSCRIPT_MODE = Infinity;
 
-// Safety cap for the non-virtualized render path (fullscreen off or
-// explicitly disabled). Ink mounts a full fiber tree per message (~250 KB
-// RSS each); yoga layout height grows unbounded; the screen buffer is sized
-// to fit every line. At ~2000 messages this is ~3000-line screens, ~500 MB
-// of fibers, and per-frame write costs that push the process into a GC
-// death spiral (observed: 59 GB RSS, 14k mmap/munmap/sec). Content dropped
-// from this slice has already been printed to terminal scrollback — users
-// can still scroll up natively. VirtualMessageList (the default ant path)
-// bypasses this cap entirely. Headless one-shot renders (e.g. /export)
-// pass disableRenderCap to opt out — they have no scrollback and the
-// memory concern doesn't apply to renderToString.
-//
-// The slice boundary is tracked as a UUID anchor, not a count-derived
-// index. Count-based slicing (slice(-200)) drops one message from the
-// front on every append, shifting scrollback content and forcing a full
-// terminal reset per turn (CC-941). Quantizing to 50-message steps
-// (CC-1154) helped but still shifted on compaction and collapse regrouping
-// since those change collapsed.length without adding messages. The UUID
-// anchor only advances when rendered count genuinely exceeds CAP+STEP —
-// immune to length churn from grouping/compaction (CC-1174).
-//
-// The anchor stores BOTH uuid and index. Some uuids are unstable between
-// renders: collapseHookSummaries derives the merged uuid from the first
-// summary in a group, but reorderMessagesInUI reshuffles hook adjacency
-// as tool results stream in, changing which summary is first. When the
-// uuid vanishes, falling back to the stored index (clamped) keeps the
-// slice roughly where it was instead of resetting to 0 — which would
-// jump from ~200 rendered messages to the full history, orphaning
-// in-progress badge snapshots in scrollback.
-const MAX_MESSAGES_WITHOUT_VIRTUALIZATION = 200;
+// No safety cap for the non-virtualized render path. All messages are
+// rendered unless an explicit renderRange is provided.
+const MAX_MESSAGES_WITHOUT_VIRTUALIZATION = Infinity;
 const MESSAGE_CAP_STEP = 50;
 export type SliceAnchor = {
   uuid: string;
@@ -464,12 +437,10 @@ const MessagesImpl = ({
   // only passed when isFullscreenEnvEnabled() is true (REPL.tsx gates it),
   // so scrollRef's presence is the signal.
   const virtualScrollRuntimeGate = scrollRef != null && !disableVirtualScroll;
-  const shouldTruncate = isTranscriptMode && !showAllInTranscript && !virtualScrollRuntimeGate;
+  const shouldTruncate = false;
 
-  // Anchor for the first rendered message in the non-virtualized cap slice.
-  // Monotonic advance only — mutation during render is idempotent (safe
-  // under StrictMode double-render). See MAX_MESSAGES_WITHOUT_VIRTUALIZATION
-  // comment above for why this replaced count-based slicing.
+  // Anchor for the first rendered message in the non-virtualized view.
+  // With unlimited rendering enabled, the slice always starts at 0.
   const sliceAnchorRef = useRef<SliceAnchor>(null);
 
   // Expensive message transforms — filter, reorder, group, collapse, lookups.
@@ -512,14 +483,14 @@ const MessagesImpl = ({
     // assistant text for file-only turns would leave the user with no context.
     const dropTextToolNames = [BRIEF_TOOL_NAME].filter((n_0): n_0 is string => n_0 !== null);
     const briefFiltered = briefToolNames.length > 0 && !isTranscriptMode ? isBriefOnly ? filterForBriefTool(messagesToShowNotTruncated, briefToolNames) : dropTextToolNames.length > 0 ? dropTextInBriefTurns(messagesToShowNotTruncated, dropTextToolNames) : messagesToShowNotTruncated : messagesToShowNotTruncated;
-    const messagesToShow = shouldTruncate ? briefFiltered.slice(-MAX_MESSAGES_TO_SHOW_IN_TRANSCRIPT_MODE) : briefFiltered;
-    const hasTruncatedMessages = shouldTruncate && briefFiltered.length > MAX_MESSAGES_TO_SHOW_IN_TRANSCRIPT_MODE;
+    const messagesToShow = briefFiltered;
+    const hasTruncatedMessages = false;
     const {
       messages: groupedMessages
     } = applyGrouping(messagesToShow, tools, verbose);
     const collapsed = collapseBackgroundBashNotifications(collapseHookSummaries(collapseTeammateShutdowns(collapseReadSearchGroups(groupedMessages, tools))), verbose);
     const lookups = buildMessageLookups(normalizedMessages, messagesToShow);
-    const hiddenMessageCount = messagesToShowNotTruncated.length - MAX_MESSAGES_TO_SHOW_IN_TRANSCRIPT_MODE;
+    const hiddenMessageCount = 0;
     return {
       collapsed,
       lookups,
@@ -530,17 +501,10 @@ const MessagesImpl = ({
 
   // Cheap slice — only runs when scroll range or slice config changes.
   const renderableMessages = useMemo(() => {
-    // Safety cap for the non-virtualized render path. Applied here (not at
-    // the JSX site) so renderMessageRow's index-based lookups and
-    // dividerBeforeIndex compute on the same array. VirtualMessageList
-    // never sees this slice — virtualScrollRuntimeGate is constant for the
-    // component's lifetime (scrollRef is either always passed or never).
-    // renderRange is first: the chunked export path slices the
-    // post-grouping array so each chunk gets correct tool-call grouping.
-    const capApplies = !virtualScrollRuntimeGate && !disableRenderCap;
-    const sliceStart = capApplies ? computeSliceStart(collapsed_0, sliceAnchorRef) : 0;
-    return renderRange ? collapsed_0.slice(renderRange[0], renderRange[1]) : sliceStart > 0 ? collapsed_0.slice(sliceStart) : collapsed_0;
-  }, [collapsed_0, renderRange, virtualScrollRuntimeGate, disableRenderCap]);
+    // Unlimited rendering: always show the full collapsed message array unless
+    // an explicit renderRange is provided (e.g. chunked export path).
+    return renderRange ? collapsed_0.slice(renderRange[0], renderRange[1]) : collapsed_0;
+  }, [collapsed_0, renderRange]);
   const streamingToolUseIDs = useMemo(() => new Set(streamingToolUses.map(__0 => __0.contentBlock.id)), [streamingToolUses]);
 
   // Divider insertion point: first renderableMessage whose uuid shares the
